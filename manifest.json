@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "X Background Color Changer",
+  "version": "1.0.0",
+  "description": "Cambia el color de fondo de X.com (Twitter) a cualquier color que desees.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "*://x.com/*",
+    "*://twitter.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://x.com/*", "*://twitter.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
