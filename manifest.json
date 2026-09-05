@@ -3,10 +3,12 @@
   "name": "X Background Color Changer",
   "version": "1.0.0",
   "description": "Cambia el color de fondo de X.com (Twitter) a cualquier color que desees.",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": [
     "*://x.com/*",
-    "*://twitter.com/*"
+    "*://*.x.com/*",
+    "*://twitter.com/*",
+    "*://*.twitter.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -23,7 +25,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://x.com/*", "*://twitter.com/*"],
+      "matches": [
+        "*://x.com/*",
+        "*://*.x.com/*",
+        "*://twitter.com/*",
+        "*://*.twitter.com/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_start"
     }

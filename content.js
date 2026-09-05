@@ -6,8 +6,12 @@
 (() => {
   const STYLE_ID = "x-bg-color-changer-style";
   const DEFAULT_BG_COLOR = "#000000";
-
   const DEFAULT_ACCENT_COLOR = "#1d9bf0";
+
+  let currentColors = {
+    bg: DEFAULT_BG_COLOR,
+    accent: DEFAULT_ACCENT_COLOR
+  };
 
   /**
    * Inject or update the CSS stylesheet that overrides X.com backgrounds.
@@ -15,6 +19,9 @@
    * all background elements (main feed, sidebar, header, modals, etc.)
    */
   function applyColors(bgColor, accentColor) {
+    currentColors.bg = bgColor;
+    currentColors.accent = accentColor;
+
     let styleEl = document.getElementById(STYLE_ID);
 
     if (!styleEl) {
@@ -243,7 +250,45 @@
     `;
 
     // Also scan DOM for elements with inline background-color and override them
-    scanAndOverrideInlineBackgrounds(color);
+    scanAndOverrideInlineBackgrounds();
+    ensureObserver();
+  }
+
+  let observer = null;
+  let scanTimeout = null;
+
+  function ensureObserver() {
+    if (observer) return;
+
+    observer = new MutationObserver(() => {
+      const styleEl = document.getElementById(STYLE_ID);
+      if (!styleEl || !document.contains(styleEl)) {
+        applyColors(currentColors.bg, currentColors.accent);
+      }
+      // Debounced scan for new elements with inline bg colors
+      if (scanTimeout) clearTimeout(scanTimeout);
+      scanTimeout = setTimeout(() => {
+        scanAndOverrideInlineBackgrounds();
+      }, 250);
+    });
+
+    const target = document.body || document.documentElement;
+    if (target) {
+      observer.observe(target, {
+        childList: true,
+        subtree: true,
+      });
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        const body = document.body || document.documentElement;
+        if (body && observer) {
+          observer.observe(body, {
+            childList: true,
+            subtree: true,
+          });
+        }
+      });
+    }
   }
 
   /**
@@ -314,6 +359,10 @@
     if (styleEl) {
       styleEl.remove();
     }
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
   }
 
   // ── Listen for messages from popup ─────────────────────
@@ -347,39 +396,6 @@
         } else {
           applyColors(savedBg, savedAccent);
         }
-
-        // Re-apply when X.com dynamically updates the DOM
-        let scanTimeout = null;
-        const observer = new MutationObserver(() => {
-          const styleEl = document.getElementById(STYLE_ID);
-          if (!styleEl || !document.contains(styleEl)) {
-            applyColors(savedBg, savedAccent);
-          }
-          // Debounced scan for new elements with inline bg colors
-          if (scanTimeout) clearTimeout(scanTimeout);
-          scanTimeout = setTimeout(() => {
-            scanAndOverrideInlineBackgrounds(savedBg);
-          }, 300);
-        });
-
-        // Start observing once body exists
-        const startObserver = () => {
-          if (document.body) {
-            observer.observe(document.body, {
-              childList: true,
-              subtree: true,
-            });
-          } else {
-            document.addEventListener("DOMContentLoaded", () => {
-              observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-              });
-            });
-          }
-        };
-
-        startObserver();
       }
     } catch (err) {
       console.log("X Background Color Changer: init error", err.message);

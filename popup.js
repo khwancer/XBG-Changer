@@ -69,13 +69,48 @@ function renderRecentColors(container, colorsArray, inputElem, isBg) {
 
 async function sendColorsToTab(bgColor, accentColor) {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab && (tab.url?.includes("x.com") || tab.url?.includes("twitter.com"))) {
-      await chrome.tabs.sendMessage(tab.id, {
-        action: "changeColors",
-        bgColor: bgColor,
-        accentColor: accentColor
-      });
+    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const activeTab = tabs && tabs[0];
+
+    // Find all tabs on X / Twitter to update them
+    const allXTabs = await chrome.tabs.query({
+      url: [
+        "*://x.com/*",
+        "*://*.x.com/*",
+        "*://twitter.com/*",
+        "*://*.twitter.com/*"
+      ]
+    });
+
+    const targetTabs = allXTabs.length > 0 ? allXTabs : (activeTab ? [activeTab] : []);
+
+    for (const tab of targetTabs) {
+      if (!tab.id) continue;
+      try {
+        await chrome.tabs.sendMessage(tab.id, {
+          action: "changeColors",
+          bgColor: bgColor,
+          accentColor: accentColor
+        });
+      } catch (err) {
+        // If the content script was not yet injected into this tab, inject it on the fly
+        try {
+          if (chrome.scripting) {
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ["content.js"]
+            });
+            // Re-send color update
+            await chrome.tabs.sendMessage(tab.id, {
+              action: "changeColors",
+              bgColor: bgColor,
+              accentColor: accentColor
+            });
+          }
+        } catch (injectionErr) {
+          console.log("Could not inject content script:", injectionErr.message);
+        }
+      }
     }
   } catch (err) {
     console.log("Could not send message to tab:", err.message);
