@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>X Background Color</title>
+  <title>X Background Color v2</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 
@@ -17,7 +17,10 @@
             d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
             fill="currentColor" />
         </svg>
-        <h1>Background Color</h1>
+        <div class="title-wrap">
+          <h1>Background Color</h1>
+          <span class="badge">v2.0</span>
+        </div>
       </div>
     </header>
 
@@ -26,19 +29,25 @@
         <label class="label" for="bgColor">Color de fondo</label>
         <div class="picker-row">
           <input type="color" id="bgColor" value="#000000" class="color-input">
-          <span class="hex-display" id="hexDisplay">#000000</span>
+          <input type="text" id="hexDisplay" value="#000000" maxlength="7" spellcheck="false" class="hex-input" aria-label="Código HEX de fondo">
         </div>
         <div class="recent-colors" id="recentBgColors"></div>
       </div>
 
       <div class="color-section">
-        <label class="label" for="accentColor">Color de acento (Botones)</label>
+        <label class="label" for="accentColor">Color de acento (Botones e íconos)</label>
         <div class="picker-row">
           <input type="color" id="accentColor" value="#1d9bf0" class="color-input">
-          <span class="hex-display" id="accentDisplay">#1D9BF0</span>
+          <input type="text" id="accentDisplay" value="#1D9BF0" maxlength="7" spellcheck="false" class="hex-input" aria-label="Código HEX de acento">
         </div>
         <div class="recent-colors" id="recentAccentColors"></div>
       </div>
+
+      <label class="toggle-row" for="surfaceRelief">
+        <span class="toggle-text">Relieve sutil en tarjetas y buscador</span>
+        <input type="checkbox" id="surfaceRelief" checked>
+        <span class="toggle-slider"></span>
+      </label>
 
       <div class="button-group">
         <button id="applyBtn" class="btn btn-primary">

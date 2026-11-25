@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "X Background Color Changer",
-  "version": "1.0.0",
-  "description": "Cambia el color de fondo de X.com (Twitter) a cualquier color que desees.",
+  "version": "2.0.1",
+  "description": "Cambia por completo el color de fondo, superficies y acento de X.com (Twitter), incluyendo clases dinámicas, encabezados e íconos.",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": [
     "*://x.com/*",
